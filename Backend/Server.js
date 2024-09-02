@@ -81,6 +81,26 @@ app.post('/signup', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+
+app.post("/login",async (req,res)=>{
+    const {email,password} = req.body
+
+    const user = await User.findOne({email})
+
+    try{
+    if(user){
+        const isPassMatch = await bcrypt.compare(password,user.password);
+        if(!isPassMatch){ return res.json({message:"Password is incorrect!",success:false}).status(404)}
+            else{
+            return res.json({message:"Login Success!",success:true,user}).status(200)}
+    }
+    else{
+        return res.json({message:"User Don't Exists!",success:false}).status(404)}
+
+    }catch(e){
+    res.json({message:e.message,success:false}).status(400)
+}
+})
 // Start the server
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

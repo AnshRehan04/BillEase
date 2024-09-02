@@ -5,7 +5,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Regex patterns
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.com|yahoo\.com|hotmail\.com|live\.com|icloud\.com)$/;
+
 const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 export default function SignUp() {
@@ -63,6 +64,8 @@ export default function SignUp() {
                 email: email.trim().toLowerCase(),
                 password: password.trim(),
             });
+
+            console.log(response.data)
 
             toast.success("Sign-Up successful! You can now log in.");
             navigate("/");

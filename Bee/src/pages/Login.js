@@ -12,9 +12,11 @@ export default function Login() {
     const [loading, setLoading] = useState(false);
     const [useDummy, setUseDummy] = useState(false); // New state for dummy credentials
     const navigate = useNavigate();
+    const [isLoggedIn,setisLoggedIn] = useState(false)
 
     const validateForm = () => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.com|yahoo\.com|hotmail\.com|live\.com|icloud\.com)$/;
+
         const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
         if (!email || !pass) {
@@ -48,25 +50,38 @@ export default function Login() {
         if (!useDummy && !validateForm()) return;
     
         try {
+
+            const response = await axios.post('http://localhost:8000/login', {
+                email: email.trim().toLowerCase(),
+                password: pass.trim(),
+            });
             setLoading(true);
+
+            if(response.data.success){
+                setisLoggedIn(true)
+            } 
+            
     
-            // Retrieve stored users
-            let storedUsers = JSON.parse(localStorage.getItem('users')) || [];
-            console.log("Stored Users:", storedUsers); // Log stored users
+            // // Retrieve stored users
+            // let storedUsers = JSON.parse(localStorage.getItem('users')) || [];
+            // console.log("Stored Users:", storedUsers); // Log stored users
     
-            const normalizedEmail = email.trim().toLowerCase();
-            const normalizedPassword = pass.trim();
+            // const normalizedEmail = email.trim().toLowerCase();
+            // const normalizedPassword = pass.trim();
     
-            const user = storedUsers.find(user => 
-                user.email === normalizedEmail && 
-                user.password === normalizedPassword
-            );
+            // const user = storedUsers.find(user => 
+            //     user.email === normalizedEmail && 
+            //     user.password === normalizedPassword
+            // );
+
+
     
-            console.log("Login Attempt:", { email: normalizedEmail, password: normalizedPassword });
-            console.log("User Found:", user);
+            // console.log("Login Attempt:", { email: normalizedEmail, password: normalizedPassword });
+            // console.log("User Found:", user);
+            console.log(response.data)
     
-            if (user) {
-                localStorage.setItem("userInfo", JSON.stringify(user));
+            if (response.data.success) {
+                localStorage.setItem("userInfo", JSON.stringify(response.data.user));
                 localStorage.setItem("jwt", JSON.stringify('dummyToken')); // Dummy token or token logic
                 navigate("/dashboard");
                 toast.success("Login successful!");
