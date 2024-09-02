@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 // Regex patterns
 const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.com|yahoo\.com|hotmail\.com|live\.com|icloud\.com)$/;
-
+const nameRegex = /^[a-zA-Z\s]+$/;
 const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 export default function SignUp() {
@@ -24,6 +24,10 @@ export default function SignUp() {
         }
         if (!emailRegex.test(email)) {
             toast.error("Invalid email format.");
+            return false;
+        }
+        if (!nameRegex.test(name)) {
+            toast.error("Name cannot include numbers.");
             return false;
         }
         if (!passwordRegex.test(password)) {

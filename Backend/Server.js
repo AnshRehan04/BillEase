@@ -37,8 +37,10 @@ const userSchema = new mongoose.Schema({
 const customerSchema = new mongoose.Schema({
     name: { type: String, required: true },
     phone: { type: String, required: true },
-    email: { type: String, required: true }
+    email: { type: String, required: true },
+    tableNum: { type: String, required: true }  // Add this field to store the table number
 });
+
 const User = mongoose.model('User', userSchema);
 const Customer = mongoose.model('Customer', customerSchema);
 

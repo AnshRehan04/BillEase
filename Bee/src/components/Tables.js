@@ -60,6 +60,7 @@ const Tables = ({ onClick }) => {
     const next = async () => {
         const { name, phone, email } = customerDetails;
     
+        // Validate that all fields are filled
         if (!name || !phone || !email) {
             toast.error("Please enter all the details.", {
                 position: "top-right",
@@ -73,6 +74,8 @@ const Tables = ({ onClick }) => {
             });
             return;
         }
+    
+        // Validate that name doesn't contain numbers
         const nameRegex = /\d/;
         if (nameRegex.test(name)) {
             toast.error("Name cannot contain numbers!", {
@@ -87,6 +90,8 @@ const Tables = ({ onClick }) => {
             });
             return;
         }
+    
+        // Validate email domain
         const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.com|yahoo\.com|hotmail\.com|live\.com|icloud\.com)$/;
         if (!emailRegex.test(email)) {
             toast.error("Please enter a valid email address with allowed domains.", {
@@ -102,10 +107,13 @@ const Tables = ({ onClick }) => {
             return;
         }
     
+        // Update the table status to "Booked"
         dispatch(setTableStatus({ id: selectedId, status: "Booked" }));
     
+        // Close the dialog
         setOpen(false);
     
+        // Create the customer data object with the table number
         const customerData = { ...customerDetails, tableNum: tables[selectedId]?.title };
     
         try {
@@ -128,6 +136,8 @@ const Tables = ({ onClick }) => {
                     progress: undefined,
                     theme: "colored"
                 });
+    
+                // Add the customer to the Redux store
                 dispatch(addCustomer(customerData));
                 onClick();
             } else {
@@ -147,7 +157,6 @@ const Tables = ({ onClick }) => {
         }
     };
     
-
     return (
         <div>
             <motion.div initial={{ y: 100 }} animate={{ y: 0 }} className='grid lg:grid-cols-4 md:grid-cols-3 grid-cols-1 gap-2 p-3'>
