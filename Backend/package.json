@@ -7,5 +7,11 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.6.0",
     "nodemon": "^3.1.4"
+  },
+  "scripts": {
+    "start": "nodemon Server.js",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   }
 }
