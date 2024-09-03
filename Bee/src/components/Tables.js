@@ -230,7 +230,7 @@ const Tables = ({ onClick }) => {
                                                          className='border border-gray-200 outline-none px-5 py-2 text-sm'
                                                     />
                                                     <input
-                                                        type="text"
+                                                        type="number"
                                                         name="phone"
                                                         placeholder="Phone"
                                                         value={customerDetails.phone}

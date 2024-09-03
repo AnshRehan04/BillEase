@@ -14,12 +14,12 @@ export default function OrderData() {
                     </p>
                 </div>
                 <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none space-x-4">
-                    <button
+                    {/* <button
                         type="button"
                         className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
                     >
                         Clear Orders
-                    </button>
+                    </button> */}
                     <Link className='bg-[#3441d4] px-6 py-2 rounded-[5px] items-center text-white' to="/dashboard">Home</Link>
                     <Link className='bg-[#5b45b0] px-6 py-2 rounded-[5px] text-white' to="/customer">Customers</Link>
                 </div>
@@ -72,9 +72,9 @@ export default function OrderData() {
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-white">{curr.order ? curr.order : "Cash"}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-white"><small><i>Sent to kitchen</i></small></td>
                                             <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                                <a href="#" className="text-indigo-600 hover:text-indigo-900">
+                                                {/* <a href="#" className="text-indigo-600 hover:text-indigo-900">
                                                     Remove<span className="sr-only">, {curr.name}</span>
-                                                </a>
+                                                </a> */}
                                             </td>
                                         </tr>
                                     ))}
