@@ -1,10 +1,10 @@
-// store/tablesSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const tablesSlice = createSlice({
   name: 'tables',
   initialState: [
     { id: 0, title: "Table 1", status: "Vacant" },
+    // other tables
     { id: 1, title: "Table 2", status: "Vacant" },
     { id: 2, title: "Table 3", status: "Vacant" },
     { id: 3, title: "Table 4", status: "Vacant" },
@@ -28,9 +28,12 @@ const tablesSlice = createSlice({
       if (table) {
         table.status = status;
       }
+    },
+    setTables: (state, action) => {
+      return action.payload; // This will replace the entire tables array
     }
   }
 });
 
-export const { setTableStatus } = tablesSlice.actions;
+export const { setTableStatus, setTables } = tablesSlice.actions;
 export default tablesSlice.reducer;

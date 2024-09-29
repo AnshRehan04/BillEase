@@ -1,12 +1,12 @@
-// components/Tables.js
-import React, { useState, useRef, Fragment } from 'react';
+import React, { useState, useEffect, useRef, Fragment } from 'react';
 import { motion } from "framer-motion";
 import { Dialog, Transition } from '@headlessui/react';
 import { UserIcon } from '@heroicons/react/24/outline';
 import { useDispatch, useSelector } from "react-redux";
+import { setTableStatus } from '../store/tableSlice';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { setTableStatus } from '../store/tableSlice';
+import { setTables } from '../store/tableSlice';
 import { addCustomer } from '../store/customerSlice';
 
 const bgarr = ["#203688", "#5b45b0", "#8a9dad", "#1d2569", "#EB6440", "#f987c4", "#4C0033", "#434242", "#5b45b0", "#1d2569", "#00a183", "#3C2A21", "#7F167F", "#9C254D", "#735F32", "#285430"];
@@ -15,15 +15,37 @@ const Tables = ({ onClick }) => {
     const tables = useSelector(state => state.tables);
     const customer = useSelector(state => state.customer);
     const dispatch = useDispatch();
-    const [selectedId, setSelectedId] = useState(null);
+    const [selectedId, setSelectedId] = useState(null); // No changes here
     const [open, setOpen] = useState(false);
     const [customerDetails, setCustomerDetails] = useState({
         name: '',
         phone: '',
         email: ''
     });
-
+    
     const cancelButtonRef = useRef(null);
+
+    useEffect(() => {
+        const fetchTableStatus = async () => {
+            try {
+                const response = await fetch('http://localhost:8000/api/tables');
+                const data = await response.json();
+                dispatch(setTables(data));
+            } catch (error) {
+                // toast.error("Failed to fetch table status.", {
+                //     position: "top-right",
+                //     autoClose: 3000,
+                //     hideProgressBar: false,
+                //     closeOnClick: true,
+                //     pauseOnHover: true,
+                //     draggable: true,
+                //     progress: undefined,
+                //     theme: "colored"
+                // });
+            }
+        };
+        fetchTableStatus();
+    }, [dispatch]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -54,13 +76,12 @@ const Tables = ({ onClick }) => {
             onClick();
         }
         setOpen(true);
-        setSelectedId(id);
+        setSelectedId(id);  // Store the correct id here
     };
 
     const next = async () => {
         const { name, phone, email } = customerDetails;
     
-        // Validate that all fields are filled
         if (!name || !phone || !email) {
             toast.error("Please enter all the details.", {
                 position: "top-right",
@@ -75,7 +96,6 @@ const Tables = ({ onClick }) => {
             return;
         }
     
-        // Validate that name doesn't contain numbers
         const nameRegex = /\d/;
         if (nameRegex.test(name)) {
             toast.error("Name cannot contain numbers!", {
@@ -91,7 +111,6 @@ const Tables = ({ onClick }) => {
             return;
         }
     
-        // Validate email domain
         const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.com|yahoo\.com|hotmail\.com|live\.com|icloud\.com)$/;
         if (!emailRegex.test(email)) {
             toast.error("Please enter a valid email address with allowed domains.", {
@@ -107,14 +126,12 @@ const Tables = ({ onClick }) => {
             return;
         }
     
-        // Update the table status to "Booked"
+        // Update the table status using the correct table id
         dispatch(setTableStatus({ id: selectedId, status: "Booked" }));
-    
-        // Close the dialog
+
         setOpen(false);
     
-        // Create the customer data object with the table number
-        const customerData = { ...customerDetails, tableNum: tables[selectedId]?.title };
+        const customerData = { ...customerDetails, tableNum: tables.find(table => table.id === selectedId)?.title };
     
         try {
             const response = await fetch('http://localhost:8000/api/customers', {
@@ -137,7 +154,6 @@ const Tables = ({ onClick }) => {
                     theme: "colored"
                 });
     
-                // Add the customer to the Redux store
                 dispatch(addCustomer(customerData));
                 onClick();
             } else {
@@ -199,7 +215,7 @@ const Tables = ({ onClick }) => {
 
                     <div className="fixed inset-0 z-10 overflow-y-auto">
                         <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                            <Transition.Child
+                        <Transition.Child
                                 as={Fragment}
                                 enter="ease-out duration-300"
                                 enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -216,8 +232,8 @@ const Tables = ({ onClick }) => {
                                     </div>
                                     <div>
                                         <div className="text-center">
-                                            <Dialog.Title as="h3"  className="text-lg font-medium leading-6 text-gray-900">
-                                                Customer Details of {tables[selectedId]?.title}
+                                            <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+                                                Customer Details for {tables.find(table => table.id === selectedId)?.title}
                                             </Dialog.Title>
                                             <div className="mt-2">
                                                 <div className="space-y-3">
@@ -227,7 +243,7 @@ const Tables = ({ onClick }) => {
                                                         placeholder="Full name"
                                                         value={customerDetails.name}
                                                         onChange={handleInputChange}
-                                                         className='border border-gray-200 outline-none px-5 py-2 text-sm'
+                                                        className="border border-gray-200 outline-none px-5 py-2 text-sm"
                                                     />
                                                     <input
                                                         type="number"
@@ -235,7 +251,7 @@ const Tables = ({ onClick }) => {
                                                         placeholder="Phone"
                                                         value={customerDetails.phone}
                                                         onChange={handleInputChange}
-                                                        className='border border-gray-200 outline-none px-5 py-2 text-sm'
+                                                        className="border border-gray-200 outline-none px-5 py-2 text-sm"
                                                     />
                                                     <input
                                                         type="text"
@@ -243,7 +259,7 @@ const Tables = ({ onClick }) => {
                                                         placeholder="Email"
                                                         value={customerDetails.email}
                                                         onChange={handleInputChange}
-                                                        className='border border-gray-200 outline-none px-5 py-2 text-sm' 
+                                                        className="border border-gray-200 outline-none px-5 py-2 text-sm"
                                                     />
                                                 </div>
                                             </div>
@@ -252,7 +268,7 @@ const Tables = ({ onClick }) => {
                                     <div className="mt-6 sm:mt-5 sm:flex sm:flex-row-reverse">
                                         <button
                                             type="button"
-                                             className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:text-sm"
+                                            className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:text-sm"
                                             onClick={next}
                                         >
                                             Next

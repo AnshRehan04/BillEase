@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+require('dotenv').config(); // Load .env variables
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const bcrypt=require("bcrypt")
@@ -9,8 +10,13 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+// Process ENV file
+
+const PORT = process.env.PORT || 8000;
+const MONGO_URI = process.env.MONGO_URI;
+
 // Connect to MongoDB
-mongoose.connect('mongodb+srv://anshrehan7:anshrehan123%40@cluster0.nbqrvn4.mongodb.net/BillEase', {
+mongoose.connect(MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
@@ -104,5 +110,5 @@ app.post("/login",async (req,res)=>{
 }
 })
 // Start the server
-const PORT = process.env.PORT || 8000;
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
