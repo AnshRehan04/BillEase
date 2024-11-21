@@ -38,6 +38,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    role: {
+        type: String,
+        enum: ['user', 'admin'], // Ensure role is either 'user' or 'admin'
+        required: true,
+    },
 });
 
 const customerSchema = new mongoose.Schema({
@@ -62,7 +67,7 @@ app.post('/api/customers', async (req, res) => {
 // POST route to handle sign-up
 app.post('/signup', async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, role } = req.body;
 
         // Check if user already exists
         let user = await User.findOne({ email });
@@ -79,6 +84,7 @@ app.post('/signup', async (req, res) => {
             name,
             email,
             password: hashedPassword,
+            role,
         });
 
         await user.save();
@@ -89,6 +95,7 @@ app.post('/signup', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+
 
 app.post("/login",async (req,res)=>{
     const {email,password} = req.body
