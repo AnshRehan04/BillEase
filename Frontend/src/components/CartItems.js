@@ -11,6 +11,10 @@ import { addAllCustomer } from '../store/allCustomerSlice'
 import axios from "axios"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { QRCodeCanvas } from 'qrcode.react';
+// OR
+import { QRCodeSVG } from 'qrcode.react';
+
 
 
 const CartItems = () => {
@@ -24,6 +28,8 @@ const CartItems = () => {
     const total = useSelector(selectTotal);
     const tax = (5.25 / 100) * total;
     const [paymentMode, setPaymentMode] = useState(null);
+    const [showQR, setShowQR] = useState(false);
+
     const subTotal = total + tax;
 
 
@@ -70,80 +76,13 @@ const CartItems = () => {
         }
     }
 
-    const handlePayment = async () => {
-
-        if(payment){
-            return;
-        }
-
-        const config = {
-            headers: {
-                "Content-type": "application/json",
-            },
-        };
-        try {
-            const res = await axios.post(`https://react-pos-backend.vercel.app/api/order`, {
-                items: cart.length, bill: subTotal.toFixed()
-            }, config);
-
-            console.log(res);
-            // console.log(res);
-            // if (res.status != 200) {
-            //     return;
-            // }
-            const options = {
-                "key": "rzp_test_G3gA5dRpgezWGS", // Enter the Key ID generated from the Dashboard
-                "amount": res.data.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-                "currency": res.data.currency,
-                "name": "Food Bill",
-                "description": res.data.notes.desc,
-                // "image": "https://assets.stickpng.com/images/580b57fcd9996e24bc43c529.png",
-                "order_id": res.data.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-                "handler": function (response) {
-                    setOrderId(response.razorpay_order_id);
-                    setPaymentId(response.razorpay_payment_id);
-                    // setSignature(response.razorpay_signature);
-                    setPayment(true);
-                    setPaymentMode(response.razorpay_payment_id);
-                    toast.success('Payment done!', {
-                        position: "top-center",
-                        autoClose: 4000,
-                        hideProgressBar: true,
-                        closeOnClick: true,
-                        pauseOnHover: false,
-                        draggable: true,
-                        progress: undefined,
-                        theme: "dark",
-                    });
-
-                },
-                "prefill": {
-                    "name": customer[0].name,
-                    "email": customer[0].email,
-                    // "contact": customer[0].phone
-                },
-            };
-
-            var rzp1 = new window.Razorpay(options);
-
-            rzp1.open();
-
-            rzp1.on('payment.failed', function (response) {
-                alert(response.error.code);
-                alert(response.error.description);
-                alert(response.error.source);
-                alert(response.error.step);
-                alert(response.error.reason);
-                alert(response.error.metadata.order_id);
-                alert(response.error.metadata.payment_id);
-            });
-
-
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
+    const handleUPIClick = () => {
+        setPaymentMode("UPI");
+        setPayment(true);
+        setShowQR(true); // Show QR code on UPI click
+    };
+    
+    
     return (
         <div>
             <ToastContainer />
@@ -236,10 +175,17 @@ const CartItems = () => {
                                 }} className='bg-[#151a34] text-center p-2 text-sm font-semibold hover:bg-[#1f2544] cursor-pointer border border-black'>
                                     <button>Cash</button>
                                 </div>
-                                <div onClick={handlePayment} className='bg-[#151a34] text-center p-2 text-sm font-semibold hover:bg-[#1f2544] cursor-pointer border border-black rounded-tr-lg'>
-                                    <button onClick={handlePayment} >UPI</button>
+                                <div  className='bg-[#151a34] text-center p-2 text-sm font-semibold hover:bg-[#1f2544] cursor-pointer border border-black rounded-tr-lg'>
+                                    <button onClick={handleUPIClick} >UPI</button>
                                 </div>
                             </div>
+
+                            {showQR && (
+    <div className="flex justify-center my-4">
+        <QRCodeCanvas value={`upi://pay?pa=your-vpa@upi&pn=Your Name&mc=&tid=&tr=&tn=Payment for Order&am=${subTotal}&cu=INR`} size={128} />
+    </div>
+)}
+
                             <div className='flex flex-col pl-8 pr-8 py-2 space-y-2'>
                                 {/* /Total  */}
                                 {payment && (
@@ -266,4 +212,5 @@ const CartItems = () => {
     )
 }
 
-export default CartItems
+export default CartItems;
+

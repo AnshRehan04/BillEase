@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, Fragment } from 'react';
 import { motion } from "framer-motion";
 import { Dialog, Transition } from '@headlessui/react';
-import { UserIcon } from '@heroicons/react/24/outline';
+import { UserIcon, CheckIcon } from '@heroicons/react/24/outline'; // Imported CheckIcon for the tick
 import { useDispatch, useSelector } from "react-redux";
 import { setTableStatus } from '../store/tableSlice';
 import { toast, ToastContainer } from 'react-toastify';
@@ -15,7 +15,7 @@ const Tables = ({ onClick }) => {
     const tables = useSelector(state => state.tables);
     const customer = useSelector(state => state.customer);
     const dispatch = useDispatch();
-    const [selectedId, setSelectedId] = useState(null); // No changes here
+    const [selectedId, setSelectedId] = useState(null); 
     const [open, setOpen] = useState(false);
     const [customerDetails, setCustomerDetails] = useState({
         name: '',
@@ -32,16 +32,7 @@ const Tables = ({ onClick }) => {
                 const data = await response.json();
                 dispatch(setTables(data));
             } catch (error) {
-                // toast.error("Failed to fetch table status.", {
-                //     position: "top-right",
-                //     autoClose: 3000,
-                //     hideProgressBar: false,
-                //     closeOnClick: true,
-                //     pauseOnHover: true,
-                //     draggable: true,
-                //     progress: undefined,
-                //     theme: "colored"
-                // });
+                // Handle error
             }
         };
         fetchTableStatus();
@@ -76,7 +67,7 @@ const Tables = ({ onClick }) => {
             onClick();
         }
         setOpen(true);
-        setSelectedId(id);  // Store the correct id here
+        setSelectedId(id);  
     };
 
     const next = async () => {
@@ -126,7 +117,6 @@ const Tables = ({ onClick }) => {
             return;
         }
     
-        // Update the table status using the correct table id
         dispatch(setTableStatus({ id: selectedId, status: "Booked" }));
 
         setOpen(false);
@@ -195,6 +185,9 @@ const Tables = ({ onClick }) => {
                                 </svg>
                                 <p className='text-xs font-bold'>{curr.status}</p>
                             </div>
+                            {curr.status === 'Booked' && (
+                                <CheckIcon className="w-8 h-8 text-green-500" /> // Displaying the tick icon when the table is booked
+                            )}
                         </div>
                     </motion.div>
                 ))}
@@ -225,64 +218,57 @@ const Tables = ({ onClick }) => {
                                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                             >
                                 <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md sm:p-6">
-                                    <div className="flex justify-center mb-4">
-                                        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-green-100">
-                                            <UserIcon className="w-6 h-6 text-green-600" />
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div className="text-center">
-                                            <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
-                                                Customer Details for {tables.find(table => table.id === selectedId)?.title}
-                                            </Dialog.Title>
-                                            <div className="mt-2">
-                                                <div className="space-y-3">
-                                                    <input
-                                                        type="text"
-                                                        name="name"
-                                                        placeholder="Full name"
-                                                        value={customerDetails.name}
-                                                        onChange={handleInputChange}
-                                                        className="border border-gray-200 outline-none px-5 py-2 text-sm"
-                                                    />
-                                                    <input
-                                                        type="number"
-                                                        name="phone"
-                                                        placeholder="Phone"
-                                                        value={customerDetails.phone}
-                                                        onChange={handleInputChange}
-                                                        className="border border-gray-200 outline-none px-5 py-2 text-sm"
-                                                    />
-                                                    <input
-                                                        type="text"
-                                                        name="email"
-                                                        placeholder="Email"
-                                                        value={customerDetails.email}
-                                                        onChange={handleInputChange}
-                                                        className="border border-gray-200 outline-none px-5 py-2 text-sm"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="mt-6 sm:mt-5 sm:flex sm:flex-row-reverse">
-                                        <button
-                                            type="button"
-                                            className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:text-sm"
-                                            onClick={next}
-                                        >
-                                            Next
-                                        </button>
-                                        {/* <button
-                                            type="button"
-                                            className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:w-auto sm:text-sm"
-                                            onClick={() => setOpen(false)}
-                                            ref={cancelButtonRef}
-                                        >
-                                            Cancel
-                                        </button> */}
-                                    </div>
-                                </Dialog.Panel>
+    <div className="flex justify-center mb-4">
+        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-green-100">
+            <UserIcon className="w-6 h-6 text-green-600" aria-hidden="true" />
+        </div>
+    </div>
+    <div>
+        <div className="text-center sm:mt-5">
+            <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+                Customer Details
+            </Dialog.Title>
+            <div className="mt-2">
+                <div className="space-y-3">
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="Full name"
+                        value={customerDetails.name}
+                        onChange={handleInputChange}
+                        className="border border-gray-200 outline-none px-5 py-2 text-sm w-full"
+                    />
+                    <input
+                        type="number"
+                        name="phone"
+                        placeholder="Phone"
+                        value={customerDetails.phone}
+                        onChange={handleInputChange}
+                        className="border border-gray-200 outline-none px-5 py-2 text-sm w-full"
+                    />
+                    <input
+                        type="text"
+                        name="email"
+                        placeholder="Email"
+                        value={customerDetails.email}
+                        onChange={handleInputChange}
+                        className="border border-gray-200 outline-none px-5 py-2 text-sm w-full"
+                    />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div className="mt-6 sm:mt-5 sm:flex sm:flex-row-reverse">
+        <button
+            type="button"
+            className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:text-sm"
+            onClick={next}
+        >
+            Save
+        </button>
+    </div>
+</Dialog.Panel>
+
                             </Transition.Child>
                         </div>
                     </div>
