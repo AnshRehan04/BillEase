@@ -60,8 +60,9 @@ app.post('/signup', async (req, res) => {
 });
 
 // POST route for login
+// POST route for login
 app.post("/login", async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, accountType } = req.body;
 
     try {
         const user = await User.findOne({ email });
@@ -77,20 +78,24 @@ app.post("/login", async (req, res) => {
             return res.status(400).json({ message: "Password is incorrect!", success: false });
         }
 
-        // Check account type (role) and provide appropriate dashboard
-        if (user.role === 'admin') {
-            return res.status(200).json({ message: "Login Success! Welcome Admin", success: true, user, dashboard: 'admin' });
-        } else if (user.role === 'user') {
-            return res.status(200).json({ message: "Login Success! Welcome User", success: true, user, dashboard: 'user' });
+        // Check account type matches
+        if (user.role !== accountType) {
+            return res.status(400).json({ message: "Invalid account type!", success: false });
         }
 
-        return res.status(400).json({ message: "Invalid role", success: false });
-
+        // Return success response
+        return res.status(200).json({
+            message: `Login Success! Welcome ${user.role === 'admin' ? 'Admin' : 'User'}`,
+            success: true,
+            user,
+            dashboard: user.role,
+        });
     } catch (e) {
         console.error(e.message);
         res.status(500).json({ message: e.message, success: false });
     }
 });
+
 
 // Start the server
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

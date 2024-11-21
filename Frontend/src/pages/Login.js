@@ -51,43 +51,32 @@ export default function Login() {
         if (!useDummy && !validateForm()) return;
     
         try {
-
+            setLoading(true);
+    
+            // Send email, password, and accountType to the server
             const response = await axios.post('http://localhost:8000/login', {
                 email: email.trim().toLowerCase(),
                 password: pass.trim(),
+                accountType: accountType, // Include account type in the payload
             });
-            setLoading(true);
-
-            if(response.data.success){
-                setisLoggedIn(true)
-            } 
-            
-    
-            // // Retrieve stored users
-            // let storedUsers = JSON.parse(localStorage.getItem('users')) || [];
-            // console.log("Stored Users:", storedUsers); // Log stored users
-    
-            // const normalizedEmail = email.trim().toLowerCase();
-            // const normalizedPassword = pass.trim();
-    
-            // const user = storedUsers.find(user => 
-            //     user.email === normalizedEmail && 
-            //     user.password === normalizedPassword
-            // );
-
-
-    
-            // console.log("Login Attempt:", { email: normalizedEmail, password: normalizedPassword });
-            // console.log("User Found:", user);
-            console.log(response.data)
     
             if (response.data.success) {
+                setisLoggedIn(true);
+    
+                // Store user data and JWT in localStorage
                 localStorage.setItem("userInfo", JSON.stringify(response.data.user));
-                localStorage.setItem("jwt", JSON.stringify('dummyToken')); // Dummy token or token logic
-                navigate("/dashboard");
-                toast.success("Login successful!");
+                localStorage.setItem("jwt", JSON.stringify('dummyToken')); // Adjust token logic as needed
+    
+                // Navigate based on accountType
+                if (response.data.dashboard === "admin") {
+                    navigate("/admin-dashboard");
+                    toast.success("Welcome, Admin!");
+                } else if (response.data.dashboard === "user") {
+                    navigate("/dashboard");
+                    toast.success("Login successful!");
+                }
             } else {
-                toast.error("Invalid email or password.");
+                toast.error(response.data.message);
             }
         } catch (error) {
             handleErrors(error);
@@ -95,6 +84,9 @@ export default function Login() {
             setLoading(false);
         }
     };
+    
+    
+    
     
     const signInWithGoogle = async () => {
         try {
