@@ -1,48 +1,38 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
-// Define the User Schema
+// Create a Mongoose schema and model for the user
 const userSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+    },
     email: {
         type: String,
         required: true,
-        unique: true,
-        trim: true
+        unique: true, // Ensure unique email
     },
     password: {
         type: String,
-        required: true
+        required: true,
     },
-    // Add other fields as needed
-    name: {
+    role: {
         type: String,
-        trim: true
+        enum: ['user', 'admin'], // Ensure role is either 'user' or 'admin'
+        required: true,
     },
-    // You can also add fields like role, profilePicture, etc.
 });
 
-// Hash the password before saving the user
-userSchema.pre('save', async function(next) {
-    if (!this.isModified('password')) return next();
-    
-    try {
-        const hashedPassword = await bcrypt.hash(this.password, 10);
-        this.password = hashedPassword;
-        next();
-    } catch (error) {
-        next(error);
+// Pre-save middleware to hash the password
+userSchema.pre('save', async function (next) {
+    if (this.isModified('password') || this.isNew) {
+        const salt = await bcrypt.genSalt(5);
+        this.password = await bcrypt.hash(this.password, salt);
     }
+    next();
 });
 
-// Compare passwords for login
-userSchema.methods.comparePassword = async function(candidatePassword) {
-    try {
-        return await bcrypt.compare(candidatePassword, this.password);
-    } catch (error) {
-        throw new Error('Error comparing passwords');
-    }
-};
-
-// Create and export the User model
+// Create the User model
 const User = mongoose.model('User', userSchema);
+
 module.exports = User;

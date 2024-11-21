@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 export default function Login() {
     const [email, setEmail] = useState('');
+    const [accountType, setAccountType] = useState('');
     const [pass, setPass] = useState('');
     const [loading, setLoading] = useState(false);
     const [useDummy, setUseDummy] = useState(false); // New state for dummy credentials
@@ -229,6 +230,40 @@ export default function Login() {
                                             />
                                         </div>
                                     </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Account Type</label>
+                                        <div className="mt-1 flex space-x-4">
+                                            <div>
+                                                <input
+                                                    id="user"
+                                                    name="accountType"
+                                                    type="radio"
+                                                    value="user"
+                                                    checked={accountType === 'user'}
+                                                    onChange={() => setAccountType('user')}
+                                                    className="mr-2"
+                                                />
+                                                <label htmlFor="user" className="text-sm text-gray-700">
+                                                    User
+                                                </label>
+                                            </div>
+                                            <div>
+                                                <input
+                                                    id="admin"
+                                                    name="accountType"
+                                                    type="radio"
+                                                    value="admin"
+                                                    checked={accountType === 'admin'}
+                                                    onChange={() => setAccountType('admin')}
+                                                    className="mr-2"
+                                                />
+                                                <label htmlFor="admin" className="text-sm text-gray-700">
+                                                    Admin
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
 
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center">
