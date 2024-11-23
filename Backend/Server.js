@@ -2,12 +2,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config(); // Load .env variables
 const cors = require('cors');
-const bcrypt=require("bcrypt");
+const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 
 // Import models
 const User = require('./models/User');
 const Customer = require('./models/Customer');
+const Order = require('./models/Order'); // Import Order model
 
 // Initialize Express
 const app = express();
@@ -36,6 +37,50 @@ app.post('/api/customers', async (req, res) => {
         res.status(400).json({ message: 'Failed to save customer details', error });
     }
 });
+// Add a GET route to fetch customer details
+app.get('/api/customers', async (req, res) => {
+    try {
+      const customers = await Customer.find(); // Fetch all customers from the database
+      res.status(200).json(customers);
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+      res.status(500).json({ message: 'Failed to fetch customers', error });
+    }
+  });
+  
+// POST route to handle order details
+// const Order = require('./models/Order'); // Import the Order model
+
+// POST route for placing orders
+// const Order = require('./models/Order'); // Import the Order model
+
+// POST route for placing orders
+app.post('/api/add-order', async (req, res) => {
+  try {
+    const { customerName, customerPhone, orderId, date, items, paymentId } = req.body;
+
+    // Calculate total amount for the entire order
+    const totalAmount = items.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+    const newOrder = new Order({
+      customerName,
+      customerPhone,
+      orderId,
+      date,
+      items,
+      totalAmount,
+      paymentId,
+    });
+
+    const savedOrder = await newOrder.save();
+    res.status(201).json({ message: 'Order placed successfully', order: savedOrder });
+  } catch (error) {
+    console.error('Error placing order:', error);
+    res.status(500).json({ message: 'Failed to place order', error });
+  }
+});
+
+
 
 // POST route for sign-up
 app.post('/signup', async (req, res) => {
@@ -60,8 +105,7 @@ app.post('/signup', async (req, res) => {
 });
 
 // POST route for login
-// POST route for login
-app.post("/login", async (req, res) => {
+app.post('/login', async (req, res) => {
     const { email, password, accountType } = req.body;
 
     try {
@@ -95,7 +139,6 @@ app.post("/login", async (req, res) => {
         res.status(500).json({ message: e.message, success: false });
     }
 });
-
 
 // Start the server
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

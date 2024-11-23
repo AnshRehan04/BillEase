@@ -86,6 +86,21 @@ const Tables = ({ onClick }) => {
             });
             return;
         }
+
+        const phoneRegex = /^[6-9]\d{9}$/; // Validates Indian 10-digit mobile numbers starting with 6-9
+        if (!phoneRegex.test(phone)) {
+            toast.error("Please enter a valid 10-digit phone number starting with 6-9.", {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored"
+            });
+            return;
+        }
     
         const nameRegex = /\d/;
         if (nameRegex.test(name)) {
