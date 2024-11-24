@@ -48,11 +48,17 @@ app.get('/api/customers', async (req, res) => {
     }
   });
   
-// POST route to handle order details
-// const Order = require('./models/Order'); // Import the Order model
+// GET route to fetch count of users with role 'user'
+app.get('/api/users/count', async (req, res) => {
+    try {
+        const userCount = await User.countDocuments({ role: 'user' }); // Count users with role 'user'
+        res.status(200).json({ count: userCount });
+    } catch (error) {
+        console.error('Error fetching user count:', error);
+        res.status(500).json({ message: 'Failed to fetch user count', error });
+    }
+});
 
-// POST route for placing orders
-// const Order = require('./models/Order'); // Import the Order model
 
 // POST route for placing orders
 app.post('/api/add-order', async (req, res) => {
