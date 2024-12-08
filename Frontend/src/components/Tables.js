@@ -4,10 +4,9 @@ import { Dialog, Transition } from '@headlessui/react';
 import { UserIcon, CheckIcon } from '@heroicons/react/24/outline'; // Imported CheckIcon for the tick
 import { useDispatch, useSelector } from "react-redux";
 import { setTableStatus } from '../store/tableSlice';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { setTables } from '../store/tableSlice';
 import { addCustomer } from '../store/customerSlice';
+import { toast } from 'react-toastify'; // Correctly imported toast
 
 const bgarr = ["#203688", "#5b45b0", "#8a9dad", "#1d2569", "#EB6440", "#f987c4", "#4C0033", "#434242", "#5b45b0", "#1d2569", "#00a183", "#3C2A21", "#7F167F", "#9C254D", "#735F32", "#285430"];
 
@@ -18,6 +17,11 @@ const Tables = ({ onClick }) => {
     const [selectedId, setSelectedId] = useState(null); 
     const [open, setOpen] = useState(false);
     const [customerDetails, setCustomerDetails] = useState({
+        name: '',
+        phone: '',
+        email: ''
+    });
+    const [errors, setErrors] = useState({
         name: '',
         phone: '',
         email: ''
@@ -50,16 +54,7 @@ const Tables = ({ onClick }) => {
         const selectedTable = tables.find(table => table.id === id);
 
         if (selectedTable.status === "Booked") {
-            toast.error(`You can't book ${selectedTable.title} as it is already booked.`, {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored"
-            });
+            toast.error("You can't book a table that's already booked!"); // Toast message if the table is booked
             return;
         }
 
@@ -73,67 +68,46 @@ const Tables = ({ onClick }) => {
     const next = async () => {
         const { name, phone, email } = customerDetails;
     
-        if (!name || !phone || !email) {
-            toast.error("Please enter all the details.", {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored"
-            });
-            return;
-        }
+        // Reset errors before validation
+        setErrors({ name: '', phone: '', email: '' });
+    
+        let valid = true;
+    
+        // Validate name
+       // Validate name
+const nameRegex = /^(?:[A-Za-z]{3,}|[A-Za-z]+(?: [A-Za-z]+){1,})$/; // Allows single/multiple words and enforces 3+ chars for single word
+if (!name) {
+    setErrors((prev) => ({ ...prev, name: 'Name is required' }));
+    valid = false;
+} else if (!nameRegex.test(name)) {
+    setErrors((prev) => ({ ...prev, name: 'Name must be at least 3 characters long and can include full names with spaces' }));
+    valid = false;
+}
 
-        const phoneRegex = /^[6-9]\d{9}$/; // Validates Indian 10-digit mobile numbers starting with 6-9
-        if (!phoneRegex.test(phone)) {
-            toast.error("Please enter a valid 10-digit phone number starting with 6-9.", {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored"
-            });
-            return;
+    
+        // Validate phone
+        const phoneRegex = /^[6-9]\d{9}$/;
+        if (!phone) {
+            setErrors((prev) => ({ ...prev, phone: 'Phone number is required' }));
+            valid = false;
+        } else if (!phoneRegex.test(phone)) {
+            setErrors((prev) => ({ ...prev, phone: 'Invalid phone number' }));
+            valid = false;
         }
     
-        const nameRegex = /\d/;
-        if (nameRegex.test(name)) {
-            toast.error("Name cannot contain numbers!", {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored"
-            });
-            return;
-        }
-    
+        // Validate email
         const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.com|yahoo\.com|hotmail\.com|live\.com|icloud\.com)$/;
-        if (!emailRegex.test(email)) {
-            toast.error("Please enter a valid email address with allowed domains.", {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored"
-            });
-            return;
+        if (!email) {
+            setErrors((prev) => ({ ...prev, email: 'Email is required' }));
+            valid = false;
+        } else if (!emailRegex.test(email)) {
+            setErrors((prev) => ({ ...prev, email: 'Invalid email address' }));
+            valid = false;
         }
+    
+        if (!valid) return;
     
         dispatch(setTableStatus({ id: selectedId, status: "Booked" }));
-
         setOpen(false);
     
         const customerData = { ...customerDetails, tableNum: tables.find(table => table.id === selectedId)?.title };
@@ -148,35 +122,16 @@ const Tables = ({ onClick }) => {
             });
     
             if (response.ok) {
-                toast.success("Customer details saved successfully!", {
-                    position: "top-right",
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "colored"
-                });
-    
                 dispatch(addCustomer(customerData));
                 onClick();
             } else {
                 throw new Error('Failed to save customer details');
             }
         } catch (error) {
-            toast.error("Failed to save customer details.", {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored"
-            });
+            // Handle error silently
         }
     };
+    
     
     return (
         <div>
@@ -223,7 +178,7 @@ const Tables = ({ onClick }) => {
 
                     <div className="fixed inset-0 z-10 overflow-y-auto">
                         <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                        <Transition.Child
+                            <Transition.Child
                                 as={Fragment}
                                 enter="ease-out duration-300"
                                 enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -233,63 +188,67 @@ const Tables = ({ onClick }) => {
                                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                             >
                                 <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md sm:p-6">
-    <div className="flex justify-center mb-4">
-        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-green-100">
-            <UserIcon className="w-6 h-6 text-green-600" aria-hidden="true" />
-        </div>
-    </div>
-    <div>
-        <div className="text-center sm:mt-5">
-            <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
-                Customer Details
-            </Dialog.Title>
-            <div className="mt-2">
-                <div className="space-y-3">
-                    <input
-                        type="text"
-                        name="name"
-                        placeholder="Full name"
-                        value={customerDetails.name}
-                        onChange={handleInputChange}
-                        className="border border-gray-200 outline-none px-5 py-2 text-sm w-full"
-                    />
-                    <input
-                        type="number"
-                        name="phone"
-                        placeholder="Phone"
-                        value={customerDetails.phone}
-                        onChange={handleInputChange}
-                        className="border border-gray-200 outline-none px-5 py-2 text-sm w-full"
-                    />
-                    <input
-                        type="text"
-                        name="email"
-                        placeholder="Email"
-                        value={customerDetails.email}
-                        onChange={handleInputChange}
-                        className="border border-gray-200 outline-none px-5 py-2 text-sm w-full"
-                    />
-                </div>
-            </div>
-        </div>
-    </div>
-    <div className="mt-6 sm:mt-5 sm:flex sm:flex-row-reverse">
-        <button
-            type="button"
-            className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:text-sm"
-            onClick={next}
-        >
-            Save
-        </button>
-    </div>
-</Dialog.Panel>
+                                    <div className="flex justify-center mb-4">
+                                        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-green-100">
+                                            <UserIcon className="w-6 h-6 text-green-600" aria-hidden="true" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="text-center sm:mt-5">
+                                            <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+                                                Customer Details
+                                            </Dialog.Title>
+                                            <div className="mt-2">
+                                                <div className="space-y-3">
+                                                    <input
+                                                        type="text"
+                                                        name="name"
+                                                        placeholder="Full name"
+                                                        value={customerDetails.name}
+                                                        onChange={handleInputChange}
+                                                        className="border border-gray-200 outline-none px-5 py-2 text-sm w-full"
+                                                    />
+                                                    {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>} {/* Error message for name */}
 
+                                                    <input
+                                                        type="number"
+                                                        name="phone"
+                                                        placeholder="Phone"
+                                                        value={customerDetails.phone}
+                                                        onChange={handleInputChange}
+                                                        onWheel={(e) => e.target.blur()} 
+                                                        className="border border-gray-200 outline-none px-5 py-2 text-sm w-full"
+                                                    />
+                                                    {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>} {/* Error message for phone */}
+
+                                                    <input
+                                                        type="text"
+                                                        name="email"
+                                                        placeholder="Email"
+                                                        value={customerDetails.email}
+                                                        onChange={handleInputChange}
+                                                        className="border border-gray-200 outline-none px-5 py-2 text-sm w-full"
+                                                    />
+                                                    {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>} {/* Error message for email */}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="mt-6 sm:mt-5 sm:flex sm:flex-row-reverse">
+                                        <button
+                                            type="button"
+                                            className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:text-sm"
+                                            onClick={next}
+                                        >
+                                            Save
+                                        </button>
+                                    </div>
+                                </Dialog.Panel>
                             </Transition.Child>
                         </div>
                     </div>
                 </Dialog>
             </Transition.Root>
-            <ToastContainer />
         </div>
     );
 };

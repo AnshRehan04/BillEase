@@ -11,7 +11,8 @@ const TimeHeader = () => {
       backgroundColor: "#000000"
     }}>
       {/* <div><small className='font-bold'>Vita</small></div> */}
-      <div><small className='font-medium'>{time}</small></div>
+      <div><small className='font-medium'></small></div>
+      <div><small className='font-medium'><span className='bg-[#060c18] text-black'>1</span></small></div>
       <div></div>
     </div>
   )

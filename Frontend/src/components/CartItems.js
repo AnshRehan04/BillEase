@@ -125,12 +125,7 @@ const CartItems = () => {
                               <div className="flex items-center justify-between">
                                 <p className="truncate text-xs font-medium text-white">
                                   {index + 1}. &nbsp;{curr.title} &nbsp;{" "}
-                                  <Avatar
-                                    name="Paneer Tikka"
-                                    textSizeRatio={3}
-                                    size="20"
-                                    round="20px"
-                                  />
+                                
                                 </p>
                                 <div className="ml-2 flex flex-shrink-0">
                                   <p className="inline-flex rounded-full px-2 text-xs font-semibold leading-5 text-white">
@@ -165,19 +160,27 @@ const CartItems = () => {
           <div className="flex flex-col w-full">
             <div>
               <div className="grid grid-cols-2 gap-0">
-                <div
-                  onClick={() => {
-                    setPaymentMode("cash");
-                    setPayment(true);
-                    toast.success("Cash received!", {
-                      position: "top-center",
-                      autoClose: 4000,
-                    });
-                  }}
-                  className="bg-[#151a34] text-center p-2 text-sm font-semibold hover:bg-[#1f2544] cursor-pointer border border-black"
-                >
-                  <button>Cash</button>
-                </div>
+              <div
+  onClick={() => {
+    if (cart.length > 0) {
+      setPaymentMode("cash");
+      setPayment(true);
+      toast.success("Cash received!", {
+        position: "top-center",
+        autoClose: 4000,
+      });
+    } else {
+      toast.info("Add items to the cart first!", {
+        position: "top-center",
+        autoClose: 4000,
+      });
+    }
+  }}
+  className={`bg-[#151a34] text-center p-2 text-sm font-semibold hover:bg-[#1f2544] cursor-pointer border border-black`}
+>
+  <button>Cash</button>
+</div>
+
                 <div className="bg-[#151a34] text-center p-2 text-sm font-semibold hover:bg-[#1f2544] cursor-pointer border border-black">
                   <button onClick={handleUPIClick}>UPI</button>
                 </div>

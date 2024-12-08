@@ -1,33 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaUserCircle } from 'react-icons/fa'; // Importing a profile icon
+import { FaUserCircle } from 'react-icons/fa';
 
 function Navbar() {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [adminName, setAdminName] = useState('');
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Retrieve admin name from local storage
+    const name = localStorage.getItem('adminName');
+    if (name) setAdminName(name);
+  }, []);
+
   const handleLogout = () => {
-    // Clear user session (e.g., tokens, etc.)
-    localStorage.removeItem('authToken'); // Adjust key as per your app
-    // Redirect to login page
+    // Clear user session
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('adminName'); // Clear admin name
     navigate('/');
   };
 
   return (
-    <div className="flex items-center justify-between bg-white shadow px-6 h-16">
+    <div className="flex items-center justify-between bg-white shadow px-6 h-16 relative">
       <h1 className="text-xl font-bold text-blue-600">AdminDashboard</h1>
       <div className="flex items-center space-x-4">
-        <input
-          type="text"
-          placeholder="Search..."
-          className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-        <div className="flex items-center space-x-2">
-          {/* Replace Admin text with profile icon */}
-          <FaUserCircle
-            className="text-gray-600 w-8 h-8 cursor-pointer"
-            onClick={handleLogout}
-            title="Logout"
-          />
+        <div className="relative">
+          <div
+            className="flex items-center space-x-2 cursor-pointer"
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+          >
+            <FaUserCircle className="text-gray-600 w-8 h-8" />
+            <span className="text-gray-800 font-medium">{adminName}</span>
+          </div>
+          {dropdownOpen && (
+            <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-md">
+              <button
+                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

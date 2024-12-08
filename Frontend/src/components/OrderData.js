@@ -47,7 +47,7 @@ export default function OrderData() {
                                             Time
                                         </th>
                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-white">
-                                            Order-Id
+                                            Payment Method
                                         </th>
                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-white">
                                             Status

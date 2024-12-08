@@ -51,11 +51,11 @@ export default function CustomerData() {
                       Phone
                     </th>
                     <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-white">
-                      Payment-Id
+                      Payment-Methodll 
                     </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-white">
+                    {/* <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-white">
                       Order-Id
-                    </th>
+                    </th> */}
                     <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-white">
                       Date
                     </th>
@@ -75,7 +75,7 @@ export default function CustomerData() {
                       </td>
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-white">{curr.phone}</td>
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-white">{curr.payment ? curr.payment : "Cash Payment"}</td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-white">{curr.order ? curr.order : "Cash"}</td>
+                      {/* <td className="whitespace-nowrap px-3 py-4 text-sm text-white">{curr.order ? curr.order : "Cash"}</td> */}
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-white">{curr.date}</td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         ?

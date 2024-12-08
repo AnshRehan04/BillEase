@@ -1,38 +1,53 @@
-import { Fragment, useRef, useState } from 'react'
-import { Dialog, Transition } from '@headlessui/react'
-import { CheckIcon } from '@heroicons/react/24/outline'
-import { useSelector } from "react-redux"
-import { selectTotal } from '../store/cartSlice'
+import { Fragment, useRef, useState } from 'react';
+import { Dialog, Transition } from '@headlessui/react';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectTotal } from '../store/cartSlice';
 import { useReactToPrint } from 'react-to-print';
-
-const people = [
-    { name: 'Lindsay Walton', title: 'Front-end Developer', email: 'lindsay.walton@example.com', role: 'Member' },
-
-]
+import axios from 'axios';
 
 export default function Invoice({ closeInvoice, paymentMode }) {
     const date = new Date(); // Current date
-const formattedDate = date.toLocaleDateString('en-US', {
-  month: 'long', // 'short' for abbreviated month names (e.g., Jan, Feb)
-  day: 'numeric',
-  year: 'numeric'
-});
-    const [open, setOpen] = useState(true)
+    const formattedDate = date.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+    });
+
+    const randomOrderNumber = Math.floor(Math.random() * 90) + 10; // Generate a random number between 10 and 99
+
+    const [open, setOpen] = useState(true);
     const cart = useSelector(state => state.cart);
     const customer = useSelector(state => state.customer);
     const componentRef = useRef();
     const total = useSelector(selectTotal);
-    // //console.log(cart);
     const tax = (5.25 / 100) * total;
-    const cancelButtonRef = useRef(null)
-    const allEvents = () => {
+    const dispatch = useDispatch();
+    const cancelButtonRef = useRef(null);
+
+    const allEvents = async () => {
         handlePrint();
+        await storeOrderTotal(); // Store the total amount in the backend
         setOpen(false);
         closeInvoice();
-    }
+    };
+
     const handlePrint = useReactToPrint({
         content: () => componentRef.current,
     });
+
+    const storeOrderTotal = async () => {
+        try {
+            const orderTotal = total + tax;
+            // Send the total order amount to the server
+            await axios.post('http://localhost:8000/api/orders', {
+                customerName: customer[0]?.name,
+                customerPhone: customer[0]?.phone,
+                orderTotal: orderTotal,
+            });
+        } catch (error) {
+            console.error('Error storing order total:', error);
+        }
+    };
 
     return (
         <Transition.Root show={open} as={Fragment}>
@@ -68,71 +83,66 @@ const formattedDate = date.toLocaleDateString('en-US', {
                                     </div>
                                     <div className='flex items-center justify-between '>
                                         <div className='text-xs'>
-                                            <h6 >Prime Hub</h6>
+                                            <h6>Prime Hub</h6>
                                             <p>Rajpura</p>
-                                            <p >Phone : +919999999</p>
+                                            <p>Phone: +919999999</p>
                                         </div>
                                         <div className='text-xs'>
-                                            <h6 className='flex'><p className='font-semibold'>DATE</p>:{formattedDate}</h6>
-                                            <h6 className='flex'><p className='font-semibold'>INVOICE</p> : &nbsp; #10</h6>
+                                            <h6 className='flex'><p className='font-semibold'>DATE</p>: {formattedDate}</h6>
+                                            <h6 className='flex'><p className='font-semibold'>INVOICE</p>: &nbsp; #{randomOrderNumber}</h6>
                                         </div>
                                     </div>
                                     <div className='flex items-center justify-between pt-2'>
                                         <div className='text-xs'>
-                                            <h6><p className='font-semibold'>BILL TO: </p></h6>
-                                            <p className='flex'>Customer name : <p className='pl-10'>{customer[0]?.name}</p></p>
-                                            <p className='flex'>Customer Phone : <p className='pl-8'>+91 {customer[0]?.phone}</p></p>
-                                            {/* <p className=''>Customer email : sam@gmail.com</p> */}
+                                            <h6><p className='font-semibold'>BILL TO:</p></h6>
+                                            <p className='flex'>Customer name: <p className='pl-10'>{customer[0]?.name}</p></p>
+                                            <p className='flex'>Customer Phone: <p className='pl-8'>+91 {customer[0]?.phone}</p></p>
                                         </div>
                                         <div className='text-xs'>
                                             <h6 className='flex'><p className='font-semibold'>TIME</p>: 12:45 PM</h6>
-                                            <h6 className='flex'><p className='font-semibold'>Order no</p>: 52</h6>
+                                            <h6 className='flex'><p className='font-semibold'>Order no</p>: {randomOrderNumber}</h6>
                                         </div>
                                     </div>
-                                    <h6 className='text-xs font-bold text-center pt-3'>Welcom to BillEase</h6>
+                                    <h6 className='text-xs font-bold text-center pt-3'>Welcome to BillEase</h6>
                                     <div className='mt-3 w-full'>
-                                        <table style={{
-                                            fontSize: "11px"
-                                        }} className='font-normal divide-x divide-y divide-gray-300 '>
-                                            <tr className='divide-x border-t border-gray-200 border-r border-l  divide-gray-300'>
-                                                <th className='px-4 p-1'>Item</th>
-                                                <th className='px-4 p-1'>Quantity</th>
-                                                <th className='px-4 p-1'>RATE</th>
-                                                <th className='px-4 p-1'>AMOUNT(₹)</th>
-                                            </tr>
-                                            {cart.map((curr, i) => {
-                                                return (
-                                                    <>
-                                                        <tr className='divide-x   divide-gray-300 border-b  border-gray-200'>
-                                                            <td className='px-4 py-1'>{curr.title}</td>
-                                                            <td className='text-center px-4 py-1'>{curr.quantity}</td>
-                                                            <td className='text-center px-4 py-1'>{(curr.price) / (curr.quantity)}/-</td>
-                                                            <td className='text-center px-4 py-1'>{curr.price}</td>
-                                                        </tr>
-                                                    </>
-                                                )
-                                            })}
-
-
+                                        <table style={{ fontSize: "11px" }} className='font-normal divide-x divide-y divide-gray-300'>
+                                            <thead>
+                                                <tr className='divide-x border-t border-gray-200 border-r border-l divide-gray-300'>
+                                                    <th className='px-4 p-1'>Item</th>
+                                                    <th className='px-4 p-1'>Quantity</th>
+                                                    <th className='px-4 p-1'>RATE</th>
+                                                    <th className='px-4 p-1'>AMOUNT(₹)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {cart.map((curr, i) => (
+                                                    <tr key={i} className='divide-x divide-gray-300 border-b border-gray-200'>
+                                                        <td className='px-4 py-1'>{curr.title}</td>
+                                                        <td className='text-center px-4 py-1'>{curr.quantity}</td>
+                                                        <td className='text-center px-4 py-1'>{(curr.price) / (curr.quantity)}/-</td>
+                                                        <td className='text-center px-4 py-1'>{curr.price}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
                                         </table>
                                     </div>
                                     <div className='flex justify-between text-xs pt-4'>
                                         <div></div>
                                         <div className='pr-4'>
-                                            <div className='flex space-x-5 '>
-                                                <p>SUBTOTAL : </p>
+                                            <div className='flex space-x-5'>
+                                                <p>SUBTOTAL:</p>
                                                 <p> ₹{total}</p>
                                             </div>
-                                            <div className='flex space-x-5 '>
-                                                <p>TAX RATE : </p>
+                                            <div className='flex space-x-5'>
+                                                <p>TAX RATE:</p>
                                                 <p>5.25%</p>
                                             </div>
-                                            <div className='flex space-x-12 '>
-                                                <p>TAX : </p>
+                                            <div className='flex space-x-12'>
+                                                <p>TAX:</p>
                                                 <p> ₹{tax.toFixed(2)}</p>
                                             </div>
-                                            <div className='flex space-x-7 '>
-                                                <p>TOTAL :  </p>
+                                            <div className='flex space-x-7'>
+                                                <p>TOTAL:</p>
                                                 <p> ₹{(total + tax).toFixed(2)}</p>
                                             </div>
                                         </div>
@@ -143,8 +153,8 @@ const formattedDate = date.toLocaleDateString('en-US', {
                                     </div>
                                 </div>
                                 <div className='flex flex-col pt-8 leading-snug'>
-                                    <small className=''>Please Contact for any queries realted to Invoice.</small>
-                                    <small className='font-medium'>THANKS YOU FOR YOUR VISIT.</small>
+                                    <small>Please Contact for any queries related to Invoice.</small>
+                                    <small className='font-medium'>THANK YOU FOR YOUR VISIT.</small>
                                 </div>
                                 <div className="mt-5 xs:mt-6">
                                     <button
@@ -161,5 +171,5 @@ const formattedDate = date.toLocaleDateString('en-US', {
                 </div>
             </Dialog>
         </Transition.Root>
-    )
+    );
 }

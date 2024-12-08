@@ -7,6 +7,7 @@ import Login from './pages/Login'; // Login Page
 import SignUp from './pages/SignUp'; // Sign-Up Page
 import Navbar from './components/Navbar'; // Admin Navbar
 import AdminDashboard from './pages/AdminDashboard'; // Admin Dashboard Component
+// import ProtectedRoute from './pages/ProtectedRoute';
 
 function App() {
   return (
@@ -25,7 +26,11 @@ function App() {
           <Route path="/customer" element={<Customer />} />
 
           {/* Admin Routes */}
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/admin-dashboard" element={
+            
+              <AdminDashboard />
+              
+            } />
         </Routes>
       </div>
     </BrowserRouter>
