@@ -7,7 +7,7 @@ import Login from './pages/Login'; // Login Page
 import SignUp from './pages/SignUp'; // Sign-Up Page
 import Navbar from './components/Navbar'; // Admin Navbar
 import AdminDashboard from './pages/AdminDashboard'; // Admin Dashboard Component
-// import ProtectedRoute from './pages/ProtectedRoute';
+import ProtectedRoute from './pages/ProtectedRoute';
 
 function App() {
   return (
@@ -21,14 +21,27 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
 
           {/* User Routes */}
-          <Route path="/dashboard" element={<Home />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/customer" element={<Customer />} />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+            <Home />
+            </ProtectedRoute>
+            } />
+          <Route path="/orders" element={
+            <ProtectedRoute>
+            <Orders />
+            </ProtectedRoute>
+            } />
+          <Route path="/customer" element={
+            <ProtectedRoute>
+            <Customer />
+            </ProtectedRoute>} />
 
           {/* Admin Routes */}
           <Route path="/admin-dashboard" element={
-            
+            <ProtectedRoute>
               <AdminDashboard />
+              </ProtectedRoute>
+              
               
             } />
         </Routes>

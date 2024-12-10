@@ -17,6 +17,7 @@
     "axios": "^1.2.1",
     "bcryptjs": "^2.4.3",
     "chart.js": "^4.4.6",
+    "dotenv": "^16.4.7",
     "firebase": "^10.13.1",
     "framer-motion": "^7.10.2",
     "jsonwebtoken": "^9.0.2",

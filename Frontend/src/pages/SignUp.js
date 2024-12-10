@@ -67,7 +67,7 @@ export default function SignUp() {
       navigate("/"); // Navigate to login page or dashboard on success
     } catch (error) {
       console.error("Sign-Up Error:", error);
-      setErrors({ server: "Failed to sign up. Please try again later." });
+      setErrors({ server: "Check your credentials Again!" });
     } finally {
       setLoading(false);
     }

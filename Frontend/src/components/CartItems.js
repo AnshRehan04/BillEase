@@ -13,13 +13,24 @@ import "react-toastify/dist/ReactToastify.css";
 import { QRCodeCanvas } from "qrcode.react";
 import Invoice from "./Invoice";
 
+
+const loadScript = (src) => {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 const CartItems = () => {
   const dispatch = useDispatch();
   const [invoiceShow, setInvoiceShow] = useState(false);
   const customer = useSelector((state) => state.customer);
-  const [orderId, setOrderId] = useState("Cash-Payment");
-  const [paymentId, setPaymentId] = useState("Cash-Payment");
-  const [payment, setPayment] = useState(false);
+  const [orderId, setOrderId] = useState("");
+  const [paymentId, setPaymentId] = useState("");
+  const [payment, setPayment] = useState(false); // Track payment status
   const cart = useSelector((state) => state.cart);
   const total = useSelector(selectTotal);
   const tax = (5.25 / 100) * total;
@@ -51,6 +62,8 @@ const CartItems = () => {
         order: orderId,
         payment: paymentId,
       };
+      setPaymentId("Cash-Payment")
+      setOrderId("Cash-Payment")
       setPayment(false);
       dispatch(add(newData));
       dispatch(removeAll());
@@ -81,7 +94,6 @@ const CartItems = () => {
         });
       } catch (error) {
         console.error("Error placing order:", error);
-       
       }
     } else {
       toast.info("Payment not done!", {
@@ -91,10 +103,101 @@ const CartItems = () => {
     }
   };
 
-  const handleUPIClick = () => {
-    setPaymentMode("UPI");
+  const handleUPIClick = async () => {
+    if (cart.length === 0) {
+      toast.info("Add items to the cart first!", {
+        position: "top-center",
+        autoClose: 4000,
+      });
+      return;
+    }
+
+    if (payment) {
+      toast.error("Payment already done!", {
+        position: "top-center",
+        autoClose: 4000,
+      });
+      return;
+    }
+
+    const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+
+    if (!res) {
+      toast.error("Failed to load Razorpay SDK. Please try again later.", {
+        position: "top-center",
+        autoClose: 4000,
+      });
+      return;
+    }
+
+    const options = {
+  key: "your_razorpaykey", // Replace with your Razorpay key
+  amount: (subTotal * 100).toFixed(0), // Razorpay works with paise (multiply INR by 100)
+  currency: "INR",
+  name: "Bill Ease",
+  description: "Order Payment",
+  image: "https://d30w0v1mttprqz.cloudfront.net/img/features/cloud-pos/stand-pos.svg", // Optional logo
+  handler: function (response) {
+    console.log(response);
+    setPaymentId("UPI");
+    setOrderId("UPI");
     setPayment(true);
-    setShowQR(true); // Show QR code on UPI click
+    toast.success("Payment successful!", {
+      position: "top-center",
+      autoClose: 4000,
+    });
+  },
+  prefill: {
+    name: customer[0]?.name || "Customer",
+    email: "customer@example.com", // Replace with customer's email
+    contact: customer[0]?.phone || "9999999999", // Replace with customer's contact
+  },
+  theme: {
+    color: "#F37254",
+  },
+  method: {
+    upi: true, // Enable UPI payment
+    wallet: true, // Enable wallet payments (e.g., PhonePe, Paytm, Google Pay)
+  },
+};
+
+
+    const rzp = new window.Razorpay(options);
+
+    rzp.on("payment.failed", function (response) {
+      console.error(response.error);
+      toast.error("Payment failed. Please try again.", {
+        position: "top-center",
+        autoClose: 4000,
+      });
+    });
+
+    rzp.open();
+  };
+
+  const handleCashClick = () => {
+    if (cart.length === 0) {
+      toast.info("Add items to the cart first!", {
+        position: "top-center",
+        autoClose: 4000,
+      });
+      return;
+    }
+
+    if (payment) {
+      toast.error("Payment already done!", {
+        position: "top-center",
+        autoClose: 4000,
+      });
+      return;
+    }
+
+    setPaymentId("cash");
+    setPayment(true);
+    toast.success("Cash received!", {
+      position: "top-center",
+      autoClose: 4000,
+    });
   };
 
   return (
@@ -125,7 +228,6 @@ const CartItems = () => {
                               <div className="flex items-center justify-between">
                                 <p className="truncate text-xs font-medium text-white">
                                   {index + 1}. &nbsp;{curr.title} &nbsp;{" "}
-                                
                                 </p>
                                 <div className="ml-2 flex flex-shrink-0">
                                   <p className="inline-flex rounded-full px-2 text-xs font-semibold leading-5 text-white">
@@ -160,26 +262,12 @@ const CartItems = () => {
           <div className="flex flex-col w-full">
             <div>
               <div className="grid grid-cols-2 gap-0">
-              <div
-  onClick={() => {
-    if (cart.length > 0) {
-      setPaymentMode("cash");
-      setPayment(true);
-      toast.success("Cash received!", {
-        position: "top-center",
-        autoClose: 4000,
-      });
-    } else {
-      toast.info("Add items to the cart first!", {
-        position: "top-center",
-        autoClose: 4000,
-      });
-    }
-  }}
-  className={`bg-[#151a34] text-center p-2 text-sm font-semibold hover:bg-[#1f2544] cursor-pointer border border-black`}
->
-  <button>Cash</button>
-</div>
+                <div
+                  onClick={handleCashClick} // Use the handleCashClick function
+                  className={`bg-[#151a34] text-center p-2 text-sm font-semibold hover:bg-[#1f2544] cursor-pointer border border-black`}
+                >
+                  <button>Cash</button>
+                </div>
 
                 <div className="bg-[#151a34] text-center p-2 text-sm font-semibold hover:bg-[#1f2544] cursor-pointer border border-black">
                   <button onClick={handleUPIClick}>UPI</button>
@@ -212,14 +300,15 @@ const CartItems = () => {
                   <p>Subtotal</p>
                   <p>₹{total.toFixed(2)}</p>
                 </div>
-                <div className="flex flex-row items-center justify-between text-sm font-bold">
+                <div className="flex flex-row items-center justify-between text-xs font-semibold text-white">
                   <p>Total</p>
                   <p>₹{subTotal.toFixed(2)}</p>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-0 pt-2 text-center absolute bottom-0 w-full">
+            </div>
+
+            <div className="grid grid-cols-2 gap-0 pt-2 text-center absolute bottom-0 w-full">
             <div
               onClick={showInvoice}
               className={
@@ -255,9 +344,8 @@ const CartItems = () => {
           </div>
         </div>
       </ScrollableFeed>
-      {invoiceShow && <Invoice close={closeInvoice} />}
-    </div>
-  );
+      {<Invoice xyz={invoiceShow} closeInvoice={closeInvoice} />}
+    </div>  );
 };
 
 export default CartItems;

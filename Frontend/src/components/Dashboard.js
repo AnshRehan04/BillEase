@@ -38,11 +38,12 @@ function Dashboard() {
   }, []);
 
   const barChartData = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+    
+    labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday','Sunday'],
     datasets: [
       {
-        label: 'Total Revenue',
-        data: [5000, 7000, 8000, 6000, 9000, 11000],
+        label: 'Daily Users',
+        data: [0,customerData.length, 0, 0, 0, 0,0],
         backgroundColor: '#4F46E5',
         borderColor: '#4F46E5',
         borderWidth: 1,
@@ -54,7 +55,7 @@ function Dashboard() {
     responsive: true,
     plugins: {
       legend: { position: 'top' },
-      title: { display: true, text: 'Total Revenue (Last 6 Months)' },
+      title: { display: true, text: 'Daily Users' },
     },
   };
 
@@ -66,7 +67,7 @@ function Dashboard() {
     datasets: [
       {
         label: 'Revenue (Last 1 Year)',
-        data: [4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000, 14000, 15000],
+        data: [4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 9000, 13000, 14000, 15000],
         borderColor: '#22C55E',
         backgroundColor: 'rgba(34, 197, 94, 0.2)',
         tension: 0.4,
@@ -93,7 +94,7 @@ function Dashboard() {
         {[
           { title: 'Users', value: userCount, color: 'bg-blue-500' },
           { title: 'Orders', value: customerData.length, color: 'bg-green-500' }, // Use customerData.length for Orders
-          { title: 'Balance', value: '₹20000', color: 'bg-yellow-500' },
+          // { title: 'Balance', value: '₹20000', color: 'bg-yellow-500' },
         ].map((card, index) => (
           <div
             key={index}
@@ -141,7 +142,7 @@ function Dashboard() {
       {/* Charts */}
       <div className="grid grid-cols-2 gap-6">
         <div className="p-6 bg-white shadow-lg rounded-xl">
-          <h2 className="text-xl font-bold text-gray-700 mb-4">Total Revenue</h2>
+          <h2 className="text-xl font-bold text-gray-700 mb-4">Daily Orders Count</h2>
           <Bar data={barChartData} options={barChartOptions} />
         </div>
         <div className="p-6 bg-white shadow-lg rounded-xl">

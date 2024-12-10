@@ -5,7 +5,7 @@ import { selectTotal } from '../store/cartSlice';
 import { useReactToPrint } from 'react-to-print';
 import axios from 'axios';
 
-export default function Invoice({ closeInvoice, paymentMode }) {
+export default function Invoice({ closeInvoice, paymentMode, xyz }) {
     const date = new Date(); // Current date
     const formattedDate = date.toLocaleDateString('en-US', {
         month: 'long',
@@ -50,8 +50,8 @@ export default function Invoice({ closeInvoice, paymentMode }) {
     };
 
     return (
-        <Transition.Root show={open} as={Fragment}>
-            <Dialog ref={componentRef} as="div" className="relative z-10" onClose={setOpen}>
+        <Transition.Root show={xyz? xyz : false} as={Fragment} >
+            <Dialog ref={componentRef} as="div" className="relative z-10" onClose={closeInvoice}>
                 <Transition.Child
                     as={Fragment}
                     enter="ease-out duration-300"

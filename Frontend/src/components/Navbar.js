@@ -16,6 +16,7 @@ function Navbar() {
   const handleLogout = () => {
     // Clear user session
     localStorage.removeItem('authToken');
+    localStorage.removeItem('token');
     localStorage.removeItem('adminName'); // Clear admin name
     navigate('/');
   };
